@@ -120,33 +120,33 @@ int main(void)
 
 
 
-    	uint8_t testData[3] = {8, 12, 20};
-    	CSP_QSPI_WriteMemory(testData, 0, 3);
-
-    	QSPI_CommandTypeDef sCommand;
-    		uint8_t test_buffer[4] = { 0 };
-
-    		sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-    		sCommand.Instruction = 0x0B;
-    		sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
-    		sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
-    		sCommand.Address = 0;
-    		sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
-    		sCommand.DataMode = QSPI_DATA_1_LINE;
-    		sCommand.DummyCycles = 8;
-    		sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
-    		sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-    		sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
-    		sCommand.NbData = 3;
-
-    		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
-    				!= HAL_OK) {
-    			return HAL_ERROR;
-    		}
-    		if (HAL_QSPI_Receive(&hqspi, test_buffer,
-    		HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-    			return HAL_ERROR;
-    		}
+//    	uint8_t testData[3] = {8, 12, 20};
+//    	CSP_QSPI_WriteMemory(testData, 0, 3);
+//
+//    	QSPI_CommandTypeDef sCommand;
+//    		uint8_t test_buffer[4] = { 0 };
+//
+//    		sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
+//    		sCommand.Instruction = 0x0B;
+//    		sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
+//    		sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
+//    		sCommand.Address = 0;
+//    		sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
+//    		sCommand.DataMode = QSPI_DATA_1_LINE;
+//    		sCommand.DummyCycles = 8;
+//    		sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
+//    		sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
+//    		sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+//    		sCommand.NbData = 3;
+//
+//    		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+//    				!= HAL_OK) {
+//    			return HAL_ERROR;
+//    		}
+//    		if (HAL_QSPI_Receive(&hqspi, test_buffer,
+//    		HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+//    			return HAL_ERROR;
+//    		}
 
 
 

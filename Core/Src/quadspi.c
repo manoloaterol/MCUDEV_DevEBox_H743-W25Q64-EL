@@ -319,10 +319,12 @@ uint8_t QSPI_Configuration(void) {
 
 
 	QSPI_CommandTypeDef sCommand;
-	uint8_t test_buffer[4] = { 0 };
+	uint8_t test_buffer[1] = { 0 };
+	uint8_t test_buffer2[1] = { 0 };
+	uint8_t test_buffer3[1] = { 0 };
 
 	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
-	sCommand.Instruction = READ_STATUS_REG2_CMD;
+	sCommand.Instruction = READ_STATUS_REG_CMD;
 	sCommand.AddressMode = QSPI_ADDRESS_NONE;
 	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
 	sCommand.DataMode = QSPI_DATA_1_LINE;
@@ -341,8 +343,31 @@ uint8_t QSPI_Configuration(void) {
 		return HAL_ERROR;
 	}
 
-	/*modify buffer to enable quad mode*/
-	test_buffer[0] |= 0x2;
+	sCommand.Instruction = READ_STATUS_REG2_CMD;
+
+	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+			!= HAL_OK) {
+		return HAL_ERROR;
+	}
+	if (HAL_QSPI_Receive(&hqspi, test_buffer2,
+	HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		return HAL_ERROR;
+	}
+
+	sCommand.Instruction = READ_STATUS_REG3_CMD;
+
+	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+			!= HAL_OK) {
+		return HAL_ERROR;
+	}
+	if (HAL_QSPI_Receive(&hqspi, test_buffer3,
+	HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		return HAL_ERROR;
+	}
+
+	/*modify buffer to enable quad mode and CMP = 0 to disable protection*/
+	test_buffer2[0] |= 0x2;
+	test_buffer2[0] &= ~(0x40);
 
 
 	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
@@ -362,7 +387,7 @@ uint8_t QSPI_Configuration(void) {
 		return HAL_ERROR;
 	}
 
-	if (HAL_QSPI_Transmit(&hqspi, test_buffer,
+	if (HAL_QSPI_Transmit(&hqspi, test_buffer2,
 	HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		Error_Handler();
 		return HAL_ERROR;

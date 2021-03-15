@@ -466,9 +466,9 @@ uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address,uint32_t buffer_s
 	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
 	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
 	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
-	sCommand.Instruction = FAST_PROG_CMD;
+	sCommand.Instruction = QUAD_IN_FAST_PROG_CMD;
 	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
+	sCommand.DataMode = QSPI_DATA_4_LINES;
 	sCommand.NbData = buffer_size;
 	sCommand.Address = address;
 	sCommand.DummyCycles = 0;

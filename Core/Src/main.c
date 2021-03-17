@@ -56,7 +56,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 #include <string.h>
-#define SECTORS_COUNT 1
+#define SECTORS_COUNT 100
 /* USER CODE END 0 */
 
 /**
@@ -101,7 +101,7 @@ int main(void)
     	for (var = 0; var < SECTORS_COUNT; var++) {
 
     		if (CSP_QSPI_EraseSector(var * MEMORY_SECTOR_SIZE,
-    				(var + 1) * MEMORY_SECTOR_SIZE - 1) != HAL_OK) {
+    				(var + 1) * (MEMORY_SECTOR_SIZE - 1)) != HAL_OK) {
 
     			while (1)
     				;  //breakpoint - error detected
@@ -117,7 +117,9 @@ int main(void)
     	}
 
 
-
+//    	CSP_QSPI_EraseSector(0, 4095);
+//    	CSP_QSPI_EraseSector(4096, 8190);
+//    	CSP_QSPI_WriteMemory(buffer_test, 0, sizeof(buffer_test));
 
 
 //    	uint8_t testData[3] = {8, 12, 20};

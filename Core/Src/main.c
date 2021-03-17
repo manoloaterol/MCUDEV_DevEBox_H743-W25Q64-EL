@@ -117,13 +117,13 @@ int main(void)
     	}
 
 
-//    	CSP_QSPI_EraseSector(0, 4095);
-//    	CSP_QSPI_EraseSector(4096, 8190);
+    	CSP_QSPI_EraseSector(0, 4095);
+    	CSP_QSPI_EraseSector(4096, 8190);
 //    	CSP_QSPI_WriteMemory(buffer_test, 0, sizeof(buffer_test));
 
 
-//    	uint8_t testData[3] = {8, 12, 20};
-//    	CSP_QSPI_WriteMemory(testData, 0, 3);
+    	uint8_t testData[3] = {8, 12, 20};
+    	CSP_QSPI_WriteMemory(testData, 0, 3);
 //
 //    	QSPI_CommandTypeDef sCommand;
 //    		uint8_t test_buffer[4] = { 0 };
@@ -162,7 +162,7 @@ int main(void)
     			; //breakpoint - error detected
     	}
 
-//    	uint8_t firstValue = *(uint8_t*) (0x90000000 + 0 * MEMORY_SECTOR_SIZE);
+    	uint8_t firstValue = *(uint8_t*) (0x90000000 + 0 * MEMORY_SECTOR_SIZE);
 //    	uint8_t value = 0;
     	for (var = 0; var < SECTORS_COUNT; var++) {
 //    		value = *(uint8_t*) (0x90000000 + var * MEMORY_SECTOR_SIZE);
@@ -201,7 +201,7 @@ void SystemClock_Config(void)
   HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
   /** Configure the main internal regulator output voltage
   */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
 
   while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
   /** Initializes the RCC Oscillators according to the specified parameters
@@ -212,7 +212,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 5;
-  RCC_OscInitStruct.PLL.PLLN = 129;
+  RCC_OscInitStruct.PLL.PLLN = 116;
   RCC_OscInitStruct.PLL.PLLP = 2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   RCC_OscInitStruct.PLL.PLLR = 2;

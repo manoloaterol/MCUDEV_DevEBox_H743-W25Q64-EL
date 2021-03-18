@@ -334,7 +334,7 @@ uint8_t QSPI_Configuration(void) {
 	}
 
 	if ((test_buffer2[0] && 0x2) == 1) {
-		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, RESET);
+//		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, RESET);
 	}
 
 	/*modify buffer to enable quad mode and CMP = 0 to disable protection*/

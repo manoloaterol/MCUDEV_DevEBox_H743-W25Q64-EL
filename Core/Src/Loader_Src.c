@@ -5,6 +5,14 @@
 #define LOADER_OK	0x1
 #define LOADER_FAIL	0x0
 
+extern void SystemClock_Config(void);
+
+extern void MX_QUADSPI_Init(void);
+extern void MX_USART3_UART_Init(void);
+extern void MX_GPIO_Init(void);
+
+
+
 /**
  * @brief  System initialization.
  * @param  None
@@ -13,53 +21,53 @@
  */
 int Init(void) {
 
-	*(uint32_t*)0xE000EDF0=0xA05F0000; //enable interrupts in debug
-	                
+	*(uint32_t*) 0xE000EDF0 = 0xA05F0000; //enable interrupts in debug
 
 	SystemInit();
 
-/* ADAPTATION TO THE DEVICE
- *
- * change VTOR setting for H7 device
- * SCB->VTOR = 0x24000000 | 0x200;
- *
- * change VTOR setting for other devices
- * SCB->VTOR = 0x20000000 | 0x200;
- *
- * */
+	/* ADAPTATION TO THE DEVICE
+	 *
+	 * change VTOR setting for H7 device
+	 * SCB->VTOR = 0x24000000 | 0x200;
+	 *
+	 * change VTOR setting for other devices
+	 * SCB->VTOR = 0x20000000 | 0x200;
+	 *
+	 * */
 
 	SCB->VTOR = 0x24000000 | 0x200;
-	
-	__set_PRIMASK(0); //enable interrupts
-	
+
+
+
+	hqspi.Instance = QUADSPI;
+	__HAL_QSPI_DISABLE(&hqspi);
+	__HAL_RCC_QSPI_FORCE_RESET();
+	for (int32_t i = 0; i < 1000; i++) {
+
+	}
+	__HAL_RCC_QSPI_RELEASE_RESET();
+
+	HAL_QSPI_DeInit(&hqspi);
+	HAL_DeInit();
+
+
 	HAL_Init();
 
-    SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-    MX_GPIO_Init();
-	
-	__HAL_RCC_QSPI_FORCE_RESET();  //completely reset peripheral
-    __HAL_RCC_QSPI_RELEASE_RESET();
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+//	MX_QUADSPI_Init();
+	CSP_QUADSPI_Init();
 
-	if (CSP_QUADSPI_Init() != HAL_OK)
-	{
-		__set_PRIMASK(1); //disable interrupts
-		return LOADER_FAIL;
-	}
+//	if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK)
+//		{
+//		__set_PRIMASK(1); //disable interrupts
+//		return LOADER_FAIL;
+//	}
 
-
-	if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK)
-	{
-		__set_PRIMASK(1); //disable interrupts
-		return LOADER_FAIL;
-	}
-	
-	/*Trigger read access before HAL_QSPI_Abort() otherwise abort functionality gets stuck*/
-	uint32_t a = *(uint32_t*) 0x90000000;
-	a++;
-
-		__set_PRIMASK(1); //disable interrupts
-		return LOADER_OK;
+	return LOADER_OK;
 }
 
 /**
@@ -70,25 +78,43 @@ int Init(void) {
  * @retval  LOADER_OK = 1		: Operation succeeded
  * @retval  LOADER_FAIL = 0	: Operation failed
  */
-int Write(uint32_t Address, uint32_t Size, uint8_t* buffer) {
+int Write(uint32_t Address, uint32_t Size, uint8_t *buffer) {
 
 	__set_PRIMASK(0); //enable interrupts
 
-	if(HAL_QSPI_Abort(&hqspi) != HAL_OK)
-	{
+	if (HAL_QSPI_Abort(&hqspi) != HAL_OK) {
 		__set_PRIMASK(1); //disable interrupts
 		return LOADER_FAIL;
 	}
 
-
-	if (CSP_QSPI_WriteMemory((uint8_t*) buffer, (Address & (0x0fffffff)),Size) != HAL_OK)
-	{
+	if (CSP_QSPI_WriteMemory((uint8_t*) buffer, (Address & (0x0fffffff)), Size)
+			!= HAL_OK) {
 		__set_PRIMASK(1); //disable interrupts
 		return LOADER_FAIL;
 	}
 
 	__set_PRIMASK(1); //disable interrupts
 	return LOADER_OK;
+}
+
+int Read (uint32_t Address, uint32_t Size, uint8_t* Buffer)
+{
+
+
+    int i = 0;
+
+    CSP_QSPI_EnableMemoryMappedMode();
+
+    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, RESET);
+
+
+    for (i=0; i < Size;i++)
+    {
+        *(uint8_t*)Buffer++ = *(uint8_t*)Address;
+        Address ++;
+    }
+
+    return LOADER_OK;
 }
 
 /**
@@ -100,22 +126,19 @@ int Write(uint32_t Address, uint32_t Size, uint8_t* buffer) {
  */
 int SectorErase(uint32_t EraseStartAddress, uint32_t EraseEndAddress) {
 
-	__set_PRIMASK(0); //enable interrupts
+//	__set_PRIMASK(0); //enable interrupts
 
-	if(HAL_QSPI_Abort(&hqspi) != HAL_OK)
-	{
-		__set_PRIMASK(1); //disable interrupts
+//	if (HAL_QSPI_Abort(&hqspi) != HAL_OK) {
+//		__set_PRIMASK(1); //disable interrupts
+//		return LOADER_FAIL;
+//	}
+
+	if (CSP_QSPI_EraseSector(EraseStartAddress, EraseEndAddress) != HAL_OK) {
+//		__set_PRIMASK(1); //disable interrupts
 		return LOADER_FAIL;
 	}
 
-
-	if (CSP_QSPI_EraseSector(EraseStartAddress, EraseEndAddress) != HAL_OK)
-	{
-		__set_PRIMASK(1); //disable interrupts
-		return LOADER_FAIL;
-	}
-
-	__set_PRIMASK(1); //disable interrupts
+//	__set_PRIMASK(1); //disable interrupts
 	return LOADER_OK;
 }
 
@@ -133,16 +156,13 @@ int MassErase(void) {
 
 	__set_PRIMASK(0); //enable interrupts
 
-	if(HAL_QSPI_Abort(&hqspi) != HAL_OK)
-	{
+	if (HAL_QSPI_Abort(&hqspi) != HAL_OK) {
 		__set_PRIMASK(1); //disable interrupts
 		return LOADER_FAIL;
 	}
 
-
-	if (CSP_QSPI_Erase_Chip() != HAL_OK)
-	{
-		 __set_PRIMASK(1); //disable interrupts
+	if (CSP_QSPI_Erase_Chip() != HAL_OK) {
+		__set_PRIMASK(1); //disable interrupts
 		return LOADER_FAIL;
 	}
 
@@ -234,16 +254,16 @@ uint32_t CheckSum(uint32_t StartAddress, uint32_t Size, uint32_t InitVal) {
  *     R1             : Checksum value
  * Note: Optional for all types of device
  */
-uint64_t Verify(uint32_t MemoryAddr, uint32_t RAMBufferAddr, uint32_t Size,uint32_t missalignement){
+uint64_t Verify(uint32_t MemoryAddr, uint32_t RAMBufferAddr, uint32_t Size,
+		uint32_t missalignement) {
 
-	__set_PRIMASK(0); //enable interrupts
+//	__set_PRIMASK(0); //enable interrupts
 	uint32_t VerifiedData = 0, InitVal = 0;
 	uint64_t checksum;
 	Size *= 4;
 
-	if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK)
-	{
-		__set_PRIMASK(1); //disable interrupts
+	if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK) {
+//		__set_PRIMASK(1); //disable interrupts
 		return LOADER_FAIL;
 	}
 
@@ -251,13 +271,13 @@ uint64_t Verify(uint32_t MemoryAddr, uint32_t RAMBufferAddr, uint32_t Size,uint3
 			Size - ((missalignement >> 16) & 0xF), InitVal);
 	while (Size > VerifiedData) {
 		if (*(uint8_t*) MemoryAddr++
-				!= *((uint8_t*) RAMBufferAddr + VerifiedData)){
-			__set_PRIMASK(1); //disable interrupts
+				!= *((uint8_t*) RAMBufferAddr + VerifiedData)) {
+//			__set_PRIMASK(1); //disable interrupts
 			return ((checksum << 32) + (MemoryAddr + VerifiedData));
 		}
 		VerifiedData++;
 	}
 
-	__set_PRIMASK(1); //disable interrupts
+//	__set_PRIMASK(1); //disable interrupts
 	return (checksum << 32);
 }

@@ -11,8 +11,6 @@ extern void MX_QUADSPI_Init(void);
 extern void MX_USART3_UART_Init(void);
 extern void MX_GPIO_Init(void);
 
-
-
 /**
  * @brief  System initialization.
  * @param  None
@@ -37,8 +35,6 @@ int Init(void) {
 
 	SCB->VTOR = 0x24000000 | 0x200;
 
-
-
 	hqspi.Instance = QUADSPI;
 	__HAL_QSPI_DISABLE(&hqspi);
 	__HAL_RCC_QSPI_FORCE_RESET();
@@ -50,7 +46,6 @@ int Init(void) {
 	HAL_QSPI_DeInit(&hqspi);
 	HAL_DeInit();
 
-
 	HAL_Init();
 
 	/* Configure the system clock */
@@ -58,7 +53,7 @@ int Init(void) {
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
-//	MX_QUADSPI_Init();
+	MX_QUADSPI_Init();
 	CSP_QUADSPI_Init();
 
 //	if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK)
@@ -97,24 +92,20 @@ int Write(uint32_t Address, uint32_t Size, uint8_t *buffer) {
 	return LOADER_OK;
 }
 
-int Read (uint32_t Address, uint32_t Size, uint8_t* Buffer)
-{
+int Read(uint32_t Address, uint32_t Size, uint8_t *Buffer) {
 
+	int i = 0;
 
-    int i = 0;
+	CSP_QSPI_EnableMemoryMappedMode();
 
-    CSP_QSPI_EnableMemoryMappedMode();
+	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, RESET);
 
-    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, RESET);
+	for (i = 0; i < Size; i++) {
+		*(uint8_t*) Buffer++ = *(uint8_t*) Address;
+		Address++;
+	}
 
-
-    for (i=0; i < Size;i++)
-    {
-        *(uint8_t*)Buffer++ = *(uint8_t*)Address;
-        Address ++;
-    }
-
-    return LOADER_OK;
+	return LOADER_OK;
 }
 
 /**
@@ -133,12 +124,34 @@ int SectorErase(uint32_t EraseStartAddress, uint32_t EraseEndAddress) {
 //		return LOADER_FAIL;
 //	}
 
-	if (CSP_QSPI_EraseSector(EraseStartAddress, EraseEndAddress) != HAL_OK) {
+//	if (CSP_QSPI_EraseSector(EraseStartAddress, EraseEndAddress) != HAL_OK) {
 //		__set_PRIMASK(1); //disable interrupts
-		return LOADER_FAIL;
-	}
+//		return LOADER_FAIL;
+//	}
 
 //	__set_PRIMASK(1); //disable interrupts
+//	return LOADER_OK;
+
+	uint32_t BlockAddr;
+
+	if (EraseStartAddress >= 0x90000000) {
+		EraseStartAddress -= 0x90000000;
+	}
+	if (EraseEndAddress >= 0x90000000) {
+		EraseEndAddress -= 0x90000000;
+	}
+
+	EraseStartAddress = EraseStartAddress - EraseStartAddress % 0x10000;
+
+	while (EraseEndAddress >= EraseStartAddress) {
+		BlockAddr = EraseStartAddress & 0x0FFFFFFF;
+		CSP_QSPI_EraseBlock(BlockAddr);
+		if (QSPI_AutoPollingMemReady() != HAL_OK) {
+			return HAL_ERROR;
+		}
+		EraseStartAddress += 0x10000;
+	}
+
 	return LOADER_OK;
 }
 

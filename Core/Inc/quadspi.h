@@ -36,10 +36,12 @@ extern QSPI_HandleTypeDef hqspi;
 /* USER CODE BEGIN Private defines */
 uint8_t CSP_QUADSPI_Init(void);
 uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress ,uint32_t EraseEndAddress);
+uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address);
 uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
 uint8_t CSP_QSPI_EnableMemoryMappedMode(void);
 uint8_t CSP_QSPI_EnableMemoryMappedMode2(void);
 uint8_t CSP_QSPI_Erase_Chip (void);
+uint8_t QSPI_AutoPollingMemReady(void);
 /* USER CODE END Private defines */
 
 void MX_QUADSPI_Init(void);
@@ -56,10 +58,13 @@ void MX_QUADSPI_Init(void);
 #define CHIP_ERASE_CMD 0xC7
 #define READ_STATUS_REG_CMD 0x05
 #define WRITE_ENABLE_CMD 0x06
+#define VOLATILE_SR_WRITE_ENABLE             0x50
 #define READ_STATUS_REG2_CMD 0x35
 #define WRITE_STATUS_REG2_CMD 0x31
 #define READ_STATUS_REG3_CMD 0x15
+#define WRITE_STATUS_REG3_CMD                0x11
 #define SECTOR_ERASE_CMD 0x20
+#define BLOCK_ERASE_CMD 0xD8
 #define QUAD_IN_FAST_PROG_CMD 0x32
 #define FAST_PROG_CMD 0x02
 #define QUAD_OUT_FAST_READ_CMD 0x6B

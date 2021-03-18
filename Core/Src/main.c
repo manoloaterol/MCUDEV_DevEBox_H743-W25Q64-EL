@@ -156,7 +156,7 @@ int main(void)
 
 
 
-    	if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK) {
+    	if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK) {
 
     		while (1)
     			; //breakpoint - error detected

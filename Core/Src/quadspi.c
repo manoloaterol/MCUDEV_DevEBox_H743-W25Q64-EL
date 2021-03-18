@@ -365,6 +365,10 @@ uint8_t QSPI_Configuration(void) {
 		return HAL_ERROR;
 	}
 
+	if((test_buffer2[0] && 0x2) == 1) {
+		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, RESET);
+	}
+
 	/*modify buffer to enable quad mode and CMP = 0 to disable protection*/
 	test_buffer2[0] |= 0x2;
 	test_buffer2[0] &= ~(0x40);
@@ -540,6 +544,38 @@ uint8_t CSP_QSPI_EnableMemoryMappedMode(void) {
 	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
 	sCommand.AlternateBytes = 0;
 	sCommand.AlternateBytesSize = 0;
+
+	sMemMappedCfg.TimeOutActivation = QSPI_TIMEOUT_COUNTER_DISABLE;
+	sMemMappedCfg.TimeOutPeriod = 0;
+
+	if (HAL_QSPI_MemoryMapped(&hqspi, &sCommand, &sMemMappedCfg) != HAL_OK) {
+		return HAL_ERROR;
+	}
+	return HAL_OK;
+}
+
+uint8_t CSP_QSPI_EnableMemoryMappedMode2(void) {
+
+	QSPI_CommandTypeDef sCommand;
+	QSPI_MemoryMappedTypeDef sMemMappedCfg;
+
+	/* Enable Memory-Mapped mode-------------------------------------------------- */
+
+	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
+	sCommand.AddressSize = QSPI_ADDRESS_24_BITS;
+	sCommand.AlternateByteMode = QSPI_ALTERNATE_BYTES_4_LINES;
+	sCommand.AlternateBytes = 0xFF;
+	sCommand.AlternateBytesSize = 1;
+	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
+	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
+	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	sCommand.AddressMode = QSPI_ADDRESS_4_LINES;
+	sCommand.DataMode = QSPI_DATA_4_LINES;
+	sCommand.NbData = 0;
+	sCommand.Address = 0;
+	sCommand.Instruction = QUAD_IN_OUT_FAST_READ_CMD;
+	sCommand.DummyCycles = 4;
+
 
 	sMemMappedCfg.TimeOutActivation = QSPI_TIMEOUT_COUNTER_DISABLE;
 	sMemMappedCfg.TimeOutPeriod = 0;

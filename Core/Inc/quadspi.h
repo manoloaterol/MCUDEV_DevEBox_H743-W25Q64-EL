@@ -38,6 +38,7 @@ uint8_t CSP_QUADSPI_Init(void);
 uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress ,uint32_t EraseEndAddress);
 uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
 uint8_t CSP_QSPI_EnableMemoryMappedMode(void);
+uint8_t CSP_QSPI_EnableMemoryMappedMode2(void);
 uint8_t CSP_QSPI_Erase_Chip (void);
 /* USER CODE END Private defines */
 
@@ -63,6 +64,7 @@ void MX_QUADSPI_Init(void);
 #define FAST_PROG_CMD 0x02
 #define QUAD_OUT_FAST_READ_CMD 0x6B
 #define DUMMY_CLOCK_CYCLES_READ_QUAD 8
+#define QUAD_IN_OUT_FAST_READ_CMD 0xEB
 #define RESET_ENABLE_CMD 0x66
 #define RESET_EXECUTE_CMD 0x99
 

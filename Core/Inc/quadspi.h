@@ -47,14 +47,14 @@ uint8_t QSPI_AutoPollingMemReady(void);
 void MX_QUADSPI_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-/*MX25L512 memory parameters*/
+/*W25Q64JV memory parameters*/
 #define MEMORY_FLASH_SIZE				0x800000 /* 64Mbit =>8Mbyte */
 #define MEMORY_BLOCK_SIZE				0x10000   /* 128 blocks of 64KBytes */
 #define MEMORY_SECTOR_SIZE				0x1000    /* 4kBytes */
 #define MEMORY_PAGE_SIZE				0x100     /* 256 bytes */
 
 
-/*MX25L512 commands */
+/*W25Q64JV commands */
 #define CHIP_ERASE_CMD 0xC7
 #define READ_STATUS_REG_CMD 0x05
 #define WRITE_ENABLE_CMD 0x06
